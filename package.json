@@ -11,5 +11,11 @@
   "dependencies": {
     "react": "^0.14.3"
   },
-  "repository": "https://github.com/simongarnier/inf4375-tp3-frontend"
+  "repository": "https://github.com/simongarnier/inf4375-tp3-frontend",
+  "devDependencies": {
+    "http-server": "^0.8.5",
+    "jsx-loader": "^0.13.2",
+    "webpack": "^1.12.9",
+    "webpack-dev-server": "^1.14.0"
+  }
 }
