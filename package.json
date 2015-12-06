@@ -12,6 +12,8 @@
   "author": "Simon Garnier",
   "license": "ISC",
   "dependencies": {
+    "bootstrap": "^3.3.6",
+    "jquery": "^2.1.4",
     "react": "^0.14.3"
   },
   "repository": "https://github.com/simongarnier/inf4375-tp3-frontend",
