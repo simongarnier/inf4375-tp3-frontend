@@ -32,7 +32,7 @@ var User = React.createClass({
     return(
       <tr>
         <th scope="row">{this.props.user.id}</th>
-        <td>{this.props.user.handle}</td>
+        <td>@{this.props.user.handle}</td>
         <td>
           <button
             type="button"
@@ -92,6 +92,7 @@ module.exports = React.createClass({
   },
   prepareRenderableData: function(){
     var filter = this.state.filter;
+    filter = filter.replace(/^@+/i, '');
     this.setState({
       data: this.state.data,
       renderableData: this.state.data.filter(function(d){
@@ -151,7 +152,7 @@ module.exports = React.createClass({
       return (
         <div className="panel panel-default">
           <div className="panel-heading">
-            <h2>Hello <b>{this.state.user.handle}!</b></h2>
+            <h2>Hello, <b>@{this.state.user.handle}!</b></h2>
           </div>
           <div className="panel-body">
             Welcome to INF4375's twitter! Here you can :
