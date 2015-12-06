@@ -9,7 +9,7 @@ var UserForm = React.createClass({
   },
   handleChange: function(e){
     this.setState({user: e.target.value})
-    this.props.onUserChange(e.target.value)
+    this.props.onUserSearchChange(e.target.value)
   },
   render: function(){
     return(
@@ -24,6 +24,28 @@ var UserForm = React.createClass({
   }
 })
 
+var User = React.createClass({
+  handleSelect: function(e){
+    this.props.onUserSelect(this.props.user)
+  },
+  render: function(){
+    return(
+      <tr>
+        <th scope="row">{this.props.user.id}</th>
+        <td>{this.props.user.handle}</td>
+        <td>
+          <button
+            type="button"
+            className="btn btn-primary btn-xs"
+            onClick={this.handleSelect}>
+            select
+          </button>
+        </td>
+      </tr>
+    )
+  }
+})
+
 var UserList = React.createClass({
   render: function(){
     var users = this.props.users;
@@ -34,13 +56,10 @@ var UserList = React.createClass({
         </div>
       )
     }else{
+      var on = this.props.onUserSelect
       var userNodes = this.props.users.map(function(user) {
         return (
-          <tr key={user.id}>
-            <th scope="row">{user.id}</th>
-            <td>{user.handle}</td>
-            <td><button type="button" className="btn btn-default btn-xs">select</button></td>
-          </tr>
+          <User user={user} key={user.id} onUserSelect={on}/>
         )
       })
       return (
@@ -62,7 +81,7 @@ module.exports = React.createClass({
       dataType: 'json',
       cache: false,
       success: function(data){
-        this.setState({data: data.payload.users, user: this.state.user}, function(){
+        this.setState({data: data.payload.users, filter: this.state.filter}, function(){
           this.prepareRenderableData();
         })
       }.bind(this),
@@ -72,35 +91,90 @@ module.exports = React.createClass({
     })
   },
   prepareRenderableData: function(){
-    var user = this.state.user;
+    var filter = this.state.filter;
     this.setState({
       data: this.state.data,
       renderableData: this.state.data.filter(function(d){
-        return !user || d.id == user || d.handle.indexOf(user) > -1
+        return !filter || d.id == filter || d.handle.indexOf(filter) > -1
       }).slice(0,5),
-      user: this.state.user});
-    this.forceUpdate();
+      filter: this.state.filter}, function(){
+        this.forceUpdate();
+      });
   },
-  handleUserChange: function(handleOrID){
-    this.setState({data: this.state.data, user: handleOrID}, function(){
+  handleUserSelect: function(user){
+    var state = this.state;
+    state.user = user;
+    this.setState(state, function(){
+      this.forceUpdate();
+    });
+  },
+  handleUserSearchChange: function(handleOrID){
+    this.setState({data: this.state.data, filter: handleOrID}, function(){
       this.prepareRenderableData();
+    });
+  },
+  handleRepick: function(){
+    var state = this.state;
+    state.user = null;
+    this.setState(state, function(){
+      this.forceUpdate();
     });
   },
   componentDidMount: function() {
     this.loadUsers();
-    setInterval(this.loadUsers, this.props.pollInterval);
+    var state = this.state;
+    state.intervalId = setInterval(this.loadUsers, this.props.pollInterval);
+    this.setState(state);
+  },
+  componentWillUnmount: function(){
+    clearInterval(this.state.intervalId);
   },
   getInitialState: function() {
-    return {data: [], renderableData: [], user: ""};
+    return {
+      data: [],
+      renderableData: [],
+      filter: "",
+      user: null,
+      intervalId: null};
   },
   render: function(){
-    return (
-      <div className="panel panel-default">
-        <div className="panel-heading">
-          <UserForm onUserChange={this.handleUserChange}/>
+    if (!this.state.user) {
+      return (
+        <div className="panel panel-default">
+          <div className="panel-heading">
+            <UserForm onUserSearchChange={this.handleUserSearchChange}/>
+          </div>
+          <UserList users={this.state.renderableData} onUserSelect={this.handleUserSelect} />
         </div>
-        <UserList users={this.state.renderableData} />
-      </div>
-    )
+      )
+    }else{
+      return (
+        <div className="panel panel-default">
+          <div className="panel-heading">
+            <h2>Hello <b>{this.state.user.handle}!</b></h2>
+          </div>
+          <div className="panel-body">
+            Welcome to INF4375's twitter! Here you can :
+            <p>
+              <ul>
+                <li>Send a tweet</li>
+                <li>Remove a tweet</li>
+                <li>See all your tweets</li>
+                <li>Subscribe and unsubscribe to other and from user</li>
+                <li>See all your subscribers and subscibees</li>
+              </ul>
+            </p>
+          </div>
+          <div className="panel-footer">
+            <button
+              type="button"
+              className="btn btn-danger btn-xs"
+              onClick={this.handleRepick}>
+              pick another user
+            </button>
+          </div>
+        </div>
+      )
+    }
   }
 })

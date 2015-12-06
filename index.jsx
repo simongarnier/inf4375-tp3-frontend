@@ -11,7 +11,7 @@ var UserBox = require('./components/UserBox')
 
 ReactDOM.render(
   <div className="col-md-4">
-    <UserBox url="http://localhost:3000/utilisateurs/" pollInterval="5000"/>
+    <UserBox url="http://localhost:3000/utilisateurs/" pollInterval="1000"/>
   </div>,
   document.getElementById('content')
 )
