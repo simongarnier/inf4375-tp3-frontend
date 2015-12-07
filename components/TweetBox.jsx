@@ -9,7 +9,52 @@ var Tweet = React.createClass({
       <div className="well">
         <h3>{this.props.handle}</h3>
         <p>{this.props.message}</p>
+        <p style={{opacity: 0.4}}>
+          {Math.floor(((Date.now() / 1000 | 0) - this.props.timestamp)/60)} minutes ago
+        </p>
+
       </div>
+    )
+  }
+});
+
+var TweetForm = React.createClass({
+  getInitialState: function(){
+    return {message: ''};
+  },
+  handleMessageChange: function(e){
+    console.log(e.target.value)
+    this.setState({message: e.target.value})
+  },
+  handleSubmit: function(e){
+    e.preventDefault();
+    var message= this.state.message.trim();
+    if(!message){return}
+    this.props.onTweetSubmit({message: message})
+    this.setState({message:''})
+  },
+  render: function(){
+    return (
+      <form className="form-horizontal"  onSubmit={this.handleSubmit} >
+        <div className="form-group">
+          <div className="col-sm-12">
+            <textarea
+              className="form-control"
+              rows="3"
+              placeholder="Message..."
+              onChange={this.handleMessageChange}
+              value={this.state.message}></textarea>
+          </div>
+        </div>
+        <div className="form-group">
+          <div className="col-sm-4">
+            <button type="submit" className="btn btn-primary btn-xs">Tweet your message!</button>
+          </div>
+          <div className="col-sm-8" style={{opacity: this.state.message.length/144, textAlign: "right"}}>
+            {this.state.message.length} characters
+          </div>
+        </div>
+      </form>
     )
   }
 });
@@ -19,7 +64,7 @@ module.exports = React.createClass({
   loadTweets: function(){
     if(this.props.user){
       jQuery.ajax({
-        url: this.props.url.replace("#", this.props.user.id),
+        url: this.props.url,
         dataType: 'json',
         cache: false,
         success: function(data){
@@ -30,6 +75,22 @@ module.exports = React.createClass({
         }.bind(this)
       })
     }
+  },
+  handleTweetSubmit: function(tweet){
+    jQuery.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      contentType: "text/plain",
+      type: 'POST',
+      data: JSON.stringify(tweet),
+      cache: false,
+      success:function(data){
+        console.log(data);
+      }.bind(this),
+      error: function(xhr, status, err){
+        console.error(this.url(), status, err.toString());
+      }.bind(this)
+    })
   },
   componentDidMount: function(){
     this.loadTweets();
@@ -63,11 +124,12 @@ module.exports = React.createClass({
             <h2>@{handle} tweets</h2>
           </div>
           <div className="panel-body">
+            <TweetForm onTweetSubmit={this.handleTweetSubmit}/>
             {
               this.state.data.sort(function(a, b){
                  return b.timestamp - a.timestamp
               }).map(function(tweet){
-                return <Tweet handle={handle} message={tweet.message} key={tweet.id} id={tweet.id}></Tweet>
+                return <Tweet handle={handle} message={tweet.message} key={tweet.id} id={tweet.id} timestamp={tweet.timestamp}></Tweet>
               })
             }
           </div>
