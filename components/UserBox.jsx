@@ -98,16 +98,13 @@ module.exports = React.createClass({
       renderableData: this.state.data.filter(function(d){
         return !filter || d.id == filter || d.handle.indexOf(filter) > -1
       }).slice(0,5),
-      filter: this.state.filter}, function(){
-        this.forceUpdate();
-      });
+      filter: this.state.filter});
   },
   handleUserSelect: function(user){
     var state = this.state;
     state.user = user;
-    this.setState(state, function(){
-      this.forceUpdate();
-    });
+    this.props.onUserSelect(user);
+    this.setState(state);
   },
   handleUserSearchChange: function(handleOrID){
     this.setState({data: this.state.data, filter: handleOrID}, function(){
@@ -117,9 +114,8 @@ module.exports = React.createClass({
   handleRepick: function(){
     var state = this.state;
     state.user = null;
-    this.setState(state, function(){
-      this.forceUpdate();
-    });
+    this.props.onUserSelect(null)
+    this.setState(state);
   },
   componentDidMount: function() {
     this.loadUsers();
@@ -156,15 +152,13 @@ module.exports = React.createClass({
           </div>
           <div className="panel-body">
             Welcome to INF4375's twitter! Here you can :
-            <p>
-              <ul>
-                <li>Send a tweet</li>
-                <li>Remove a tweet</li>
-                <li>See all your tweets</li>
-                <li>Subscribe and unsubscribe to other and from user</li>
-                <li>See all your subscribers and subscibees</li>
-              </ul>
-            </p>
+            <ul>
+              <li>Send a tweet</li>
+              <li>Remove a tweet</li>
+              <li>See all your tweets</li>
+              <li>Subscribe and unsubscribe to other and from user</li>
+              <li>See all your subscribers and subscibees</li>
+            </ul>
           </div>
           <div className="panel-footer">
             <button
