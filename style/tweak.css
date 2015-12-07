@@ -5,3 +5,5 @@
 .table th {
   text-align: center;
 }
+
+textarea { resize:vertical; }
