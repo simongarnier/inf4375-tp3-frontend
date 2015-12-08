@@ -74,7 +74,25 @@ module.exports = React.createClass({
     });
   },
   handleUserSub: function(user){
-
+    if(this.props.user){
+      var type;
+      if(user.subscribed == 1){
+        type = 'DELETE';
+      }else {
+        type = 'PUT';
+      }
+      jQuery.ajax({
+        url: this.props.subUrl + user.id,
+        dataType: 'json',
+        contentType: "text/plain",
+        type: type,
+        cache: false,
+        succes:function(data) {console.log(data);}.bind(this),
+        error: function(xhr, status, err){
+          console.error(this.props.url, status, err.toString());
+        }.bind(this)
+      })
+    }
   },
   getInitialState: function() {
     return {
