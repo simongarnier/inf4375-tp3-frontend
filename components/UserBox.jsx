@@ -14,8 +14,10 @@ module.exports = React.createClass({
       dataType: 'json',
       cache: false,
       success: function(data){
-        this.setState({data: data.payload.users, filter: this.state.filter}, function(){
-          this.prepareRenderableData();
+        var state = this.state;
+        state.data = data.payload.users
+        this.setState(state, function(){
+          this.prepareRenderableData()
         })
       }.bind(this),
       error: function(xhr, status, err){
@@ -26,12 +28,10 @@ module.exports = React.createClass({
   prepareRenderableData: function(){
     var filter = this.state.filter;
     filter = filter.replace(/^@+/i, '');
-    this.setState({
-      data: this.state.data,
-      renderableData: this.state.data.filter(function(d){
-        return !filter || d.id == filter || d.handle.indexOf(filter) > -1
-      }).slice(0,5),
-      filter: this.state.filter});
+    var state = this.state;
+    state.renderableData = this.state.data.filter(function(d){
+      return !filter || d.id == filter || d.handle.indexOf(filter) > -1
+    }).slice(0,5);
   },
   handleUserSelect: function(user){
     var state = this.state;
@@ -40,7 +40,9 @@ module.exports = React.createClass({
     this.setState(state);
   },
   handleUserSearchChange: function(handleOrID){
-    this.setState({data: this.state.data, filter: handleOrID}, function(){
+    var state = this.state;
+    state.filter = handleOrID;
+    this.setState(state, function(){
       this.prepareRenderableData();
     });
   },

@@ -4,6 +4,7 @@
 var React = require('react')
 var UserForm = require('./UserForm')
 var User = require('./User')
+var UserList = require('./UserList')
 var ToggleButton = require('./ToggleButton')
 
 module.exports = React.createClass({
@@ -31,7 +32,11 @@ module.exports = React.createClass({
                     return user;
                   }
               })
-              this.setState({data: data, filter: this.state.filter});
+              var state = this.state;
+              state.data = data
+              this.setState(state, function(){
+                this.prepareRenderableData()
+              })
             }.bind(this),
             error: function(xhr, status, err){
               console.error(this.props.subUrl, status, err.toString());
@@ -44,13 +49,31 @@ module.exports = React.createClass({
       })
     }
   },
+  prepareRenderableData: function(){
+    var filter = this.state.filter;
+    filter = filter.replace(/^@+/i, '');
+    var state = this.state;
+    state.renderableData = this.state.data.filter(function(d){
+      return !filter || d.id == filter || d.handle.indexOf(filter) > -1
+    }).slice(0,5);
+  },
   componentDidMount: function(){
     this.loadSubscribers();
     var state = this.state;
     state.intervalId = setInterval(this.loadSubscribers, this.props.pollInterval);
     this.setState(state);
   },
-  handleUserSearchChange: function(){
+  componentWillUnmount: function(){
+    clearInterval(this.state.intervalId);
+  },
+  handleUserSearchChange: function(handleOrID){
+    var state = this.state;
+    state.filter = handleOrID;
+    this.setState(state, function(){
+      this.prepareRenderableData();
+    });
+  },
+  handleUserSub: function(user){
 
   },
   getInitialState: function() {
@@ -62,16 +85,28 @@ module.exports = React.createClass({
     };
   },
   render: function(){
+    var body;
+    if(this.props.user){
+      body = (
+        <UserList users={this.state.renderableData} onUserClick={this.handleUserSub}>
+          <ToggleButton/>
+        </UserList>
+      )
+    }else{
+      body = (
+        <div className="panel-body">
+          "Select a user to see his subscriptions!"
+        </div>
+      )
+    }
     return(
       <div className = "panel panel-default">
         <div className="panel-heading">
           <UserForm onUserSearchChange={this.handleUserSearchChange}>
-            Look for subscriber...
+            Look for user to subscribe to...
           </UserForm>
         </div>
-        <div className="panel-body">
-          Select a user to see his subscriptions!
-        </div>
+        {body}
       </div>
     )
   }

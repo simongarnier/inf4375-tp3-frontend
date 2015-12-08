@@ -1,6 +1,7 @@
 /** @jsx React.DOM */
 'use strict'
 var User = require('./User')
+var React = require('react')
 
 module.exports = React.createClass({
   displayName: 'UserList',
@@ -16,8 +17,8 @@ module.exports = React.createClass({
       var on = this.props.onUserClick
       var children = this.props.children
       var userNodes = this.props.users.map(function(user) {
-        if (user.subscribed) {
-          children = cloneElement(children, {status: user.subscribed})
+        if (user.hasOwnProperty("subscribed")) {
+          children = React.cloneElement(children, {status: user.subscribed})
         }
         return (
           <User user={user} key={user.id} onUserClick={on}>
