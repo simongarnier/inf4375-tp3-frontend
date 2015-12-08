@@ -30,7 +30,7 @@ var App = React.createClass({
           <UserBox url="http://localhost:3000/utilisateurs/" pollInterval="1000" onUserSelect={this.handleUserSelect}/>
         </div>
         <div className="col-md-6">
-          <TweetBox url={"http://localhost:3000/utilisateurs/"+id+"/tweets/"} pollInterval="100" user={this.state.user}/>
+          <TweetBox url={"http://localhost:3000/utilisateurs/"+id+"/tweets/"} pollInterval="1000" user={this.state.user}/>
         </div>
         <div className="col-md-3">
           <SubBox url={"http://localhost:3000/abonnements/"+id+"/"} pollInterval="1000" user={this.state.user}/>
