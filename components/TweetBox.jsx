@@ -4,6 +4,9 @@
 var React = require('react')
 
 var Tweet = React.createClass({
+  handleDelete: function(){
+    this.props.onTweetDelete(this.props.id)
+  },
   render: function(){
     return(
       <div className="well">
@@ -12,7 +15,7 @@ var Tweet = React.createClass({
         <p style={{opacity: 0.4}}>
           {Math.floor(((Date.now() / 1000 | 0) - this.props.timestamp)/60)} minutes ago
         </p>
-
+        <span style={{opacity: 0.4}} className="glyphicon glyphicon-remove" aria-hidden="true" onClick={this.handleDelete}></span>
       </div>
     )
   }
@@ -23,7 +26,6 @@ var TweetForm = React.createClass({
     return {message: ''};
   },
   handleMessageChange: function(e){
-    console.log(e.target.value)
     this.setState({message: e.target.value})
   },
   handleSubmit: function(e){
@@ -34,6 +36,7 @@ var TweetForm = React.createClass({
     this.setState({message:''})
   },
   render: function(){
+    var disabled = this.state.length < 1 ? "disabled" : null
     return (
       <form className="form-horizontal"  onSubmit={this.handleSubmit} >
         <div className="form-group">
@@ -77,20 +80,34 @@ module.exports = React.createClass({
     }
   },
   handleTweetSubmit: function(tweet){
-    jQuery.ajax({
-      url: this.props.url,
-      dataType: 'json',
-      contentType: "text/plain",
-      type: 'POST',
-      data: JSON.stringify(tweet),
-      cache: false,
-      success:function(data){
-        console.log(data);
-      }.bind(this),
-      error: function(xhr, status, err){
-        console.error(this.url(), status, err.toString());
-      }.bind(this)
-    })
+    if(this.props.user){
+      jQuery.ajax({
+        url: this.props.url,
+        dataType: 'json',
+        contentType: "text/plain",
+        type: 'POST',
+        data: JSON.stringify(tweet),
+        cache: false,
+        succes:function(data) {console.log(data);}.bind(this),
+        error: function(xhr, status, err){
+          console.error(this.props.url, status, err.toString());
+        }.bind(this)
+      })
+    }
+  },
+  handleTweetDelete: function(tweetId){
+    if(this.props.user){
+      jQuery.ajax({
+        url: this.props.url + tweetId,
+        contentType: "text/plain",
+        type: 'DELETE',
+        cache: false,
+        succes:function(data) {console.log(data);}.bind(this),
+        error: function(xhr, status, err){
+          console.error(this.props.url+tweetId, status, err.toString());
+        }.bind(this)
+      })
+    }
   },
   componentDidMount: function(){
     this.loadTweets();
@@ -118,6 +135,7 @@ module.exports = React.createClass({
       )
     }else{
       var handle = this.props.user.handle
+      var deleteCallback = this.handleTweetDelete;
       return(
         <div className = "panel panel-default">
           <div className="panel-heading">
@@ -129,7 +147,13 @@ module.exports = React.createClass({
               this.state.data.sort(function(a, b){
                  return b.timestamp - a.timestamp
               }).map(function(tweet){
-                return <Tweet handle={handle} message={tweet.message} key={tweet.id} id={tweet.id} timestamp={tweet.timestamp}></Tweet>
+                return <Tweet
+                  handle={handle}
+                  message={tweet.message}
+                  key={tweet.id}
+                  id={tweet.id}
+                  timestamp={tweet.timestamp}
+                  onTweetDelete={deleteCallback}></Tweet>
               })
             }
           </div>
