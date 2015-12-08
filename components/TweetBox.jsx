@@ -97,6 +97,13 @@ module.exports = React.createClass({
   },
   handleTweetDelete: function(tweetId){
     if(this.props.user){
+      //remove the tweet from our local state
+      var state = this.state;
+      state.data = this.state.data.filter(function(tweet){
+        return tweet.id != tweetId
+      });
+      console.log(state.data)
+      this.setState(state, function(){this.forceUpdate()})
       jQuery.ajax({
         url: this.props.url + tweetId,
         contentType: "text/plain",
