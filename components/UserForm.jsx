@@ -2,6 +2,7 @@
 'use strict'
 
 module.exports = React.createClass({
+  displayName: "UserForm",
   getInitialState: function() {
     return {user: ''};
   },
@@ -14,7 +15,7 @@ module.exports = React.createClass({
         <input
           type="text"
           className="form-control"
-          placeholder="ID or Handle"
+          placeholder={this.props.children}
           value={this.state.user}
           onChange={this.handleChange}
         />

@@ -2,76 +2,9 @@
 'use strict'
 
 var React = require('react')
-
-var UserForm = React.createClass({
-  getInitialState: function() {
-    return {user: ''};
-  },
-  handleChange: function(e){
-    this.setState({user: e.target.value})
-    this.props.onUserSearchChange(e.target.value)
-  },
-  render: function(){
-    return(
-        <input
-          type="text"
-          className="form-control"
-          placeholder="ID or Handle"
-          value={this.state.user}
-          onChange={this.handleChange}
-        />
-    )
-  }
-})
-
-var User = React.createClass({
-  handleSelect: function(e){
-    this.props.onUserSelect(this.props.user)
-  },
-  render: function(){
-    return(
-      <tr>
-        <th scope="row">{this.props.user.id}</th>
-        <td>@{this.props.user.handle}</td>
-        <td>
-          <button
-            type="button"
-            className="btn btn-primary btn-xs"
-            onClick={this.handleSelect}>
-            select
-          </button>
-        </td>
-      </tr>
-    )
-  }
-})
-
-var UserList = React.createClass({
-  render: function(){
-    var users = this.props.users;
-    if (users.length < 1) {
-      return (
-        <div className="panel-body">
-          No user found
-        </div>
-      )
-    }else{
-      var on = this.props.onUserSelect
-      var userNodes = this.props.users.map(function(user) {
-        return (
-          <User user={user} key={user.id} onUserSelect={on}/>
-        )
-      })
-      return (
-        <table className="table table-hover">
-          <tbody>
-            {userNodes}
-          </tbody>
-        </table>
-      )
-    }
-  }
-})
+var UserForm = require('./UserForm')
+var UserList = require('./UserList')
+var SelectButton = require('./SelectButton')
 
 module.exports = React.createClass({
   displayName: 'UserBox',
@@ -139,9 +72,13 @@ module.exports = React.createClass({
       return (
         <div className="panel panel-default">
           <div className="panel-heading">
-            <UserForm onUserSearchChange={this.handleUserSearchChange}/>
+            <UserForm onUserSearchChange={this.handleUserSearchChange}>
+              Look for user...
+            </UserForm>
           </div>
-          <UserList users={this.state.renderableData} onUserSelect={this.handleUserSelect} />
+          <UserList users={this.state.renderableData} onUserClick={this.handleUserSelect}>
+            <SelectButton>Select</SelectButton>
+          </UserList>
         </div>
       )
     }else{

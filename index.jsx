@@ -24,16 +24,28 @@ var App = React.createClass({
     if(this.state.user){
       id = this.state.user.id
     }
+
     return(
       <div className="row">
         <div className="col-md-3">
-          <UserBox url="http://localhost:3000/utilisateurs/" pollInterval="1000" onUserSelect={this.handleUserSelect}/>
+          <UserBox
+            url="http://localhost:3000/utilisateurs/"
+            pollInterval="1000"
+            onUserSelect={this.handleUserSelect}
+          />
+          <SubBox
+            userUrl="http://localhost:3000/utilisateurs/"
+            subUrl={"http://localhost:3000/utilisateurs/"+id+"/abonnements/"}
+            pollInterval="1000"
+            user={this.state.user}
+          />
         </div>
         <div className="col-md-6">
-          <TweetBox url={"http://localhost:3000/utilisateurs/"+id+"/tweets/"} pollInterval="1000" user={this.state.user}/>
-        </div>
-        <div className="col-md-3">
-          <SubBox url={"http://localhost:3000/abonnements/"+id+"/"} pollInterval="1000" user={this.state.user}/>
+          <TweetBox
+            url={"http://localhost:3000/utilisateurs/"+id+"/tweets/"}
+            pollInterval="1000"
+            user={this.state.user}
+          />
         </div>
       </div>
     )
