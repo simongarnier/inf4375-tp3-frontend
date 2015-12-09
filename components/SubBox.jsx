@@ -33,10 +33,23 @@ module.exports = React.createClass({
                   }
               })
               var state = this.state;
-              state.data = data
-              this.setState(state, function(){
-                this.prepareRenderableData()
-              })
+              state.data = data;
+              state.subscriptionsCount = subData.payload.subscriptions.length
+              jQuery.ajax({
+                url: this.props.subscribersUrl,
+                datatype: 'json',
+                cache: false,
+                success: function(subscribersData){
+                  state.subscribersCount = subscribersData.payload.subscribers.length;
+                  this.setState(state, function(){
+                    this.prepareRenderableData()
+                    console.log(this.state)
+                  })
+                }.bind(this),
+                error: function(xhr, status, err){
+                  console.error(this.props.subUrl, status, err.toString());
+                }.bind(this)
+              });
             }.bind(this),
             error: function(xhr, status, err){
               console.error(this.props.subUrl, status, err.toString());
@@ -99,21 +112,31 @@ module.exports = React.createClass({
       data: [],
       renderableData: [],
       filter: "",
-      intervalId: null
+      intervalId: null,
+      subscriptionsCount: 0,
+      subscribersCount: 0
     };
   },
   render: function(){
     var body;
+    var footer = null;
     if(this.props.user){
       body = (
         <UserList users={this.state.renderableData} onUserClick={this.handleUserSub}>
           <ToggleButton/>
         </UserList>
       )
+      footer = (
+        <div className="panel-footer">
+          <span style={{opacity: 0.4}}>
+            {this.state.subscribersCount} followers and {this.state.subscriptionsCount} followed
+          </span>
+        </div>
+      )
     }else{
       body = (
         <div className="panel-body">
-          "Select a user to see his subscriptions!"
+          Select a user to pick his followed!
         </div>
       )
     }
@@ -121,10 +144,11 @@ module.exports = React.createClass({
       <div className = "panel panel-default">
         <div className="panel-heading">
           <UserForm onUserSearchChange={this.handleUserSearchChange}>
-            Look for user to subscribe to...
+            Look for user to follow...
           </UserForm>
         </div>
         {body}
+        {footer}
       </div>
     )
   }
